@@ -2,32 +2,32 @@ from sklearn.metrics import r2_score
 import pandas as pd
 import numpy as np
 import math as m
+from sklearn.linear_model import LinearRegression
 
 data = pd.read_csv('NYC_Bicycle_Counts_2016_Corrected.csv')
-data_np = data.values
-dataaa = data_np[:,5]
+dataset_1 = pd.read_csv('NYC_Bicycle_Counts_2016_Corrected.csv')
+dataset_1['Brooklyn Bridge']      = pd.to_numeric(dataset_1['Brooklyn Bridge'].replace(',','', regex=True))
+dataset_1['Manhattan Bridge']     = pd.to_numeric(dataset_1['Manhattan Bridge'].replace(',','', regex=True))
+dataset_1['Queensboro Bridge']    = pd.to_numeric(dataset_1['Queensboro Bridge'].replace(',','', regex=True))
+dataset_1['Williamsburg Bridge']  = pd.to_numeric(dataset_1['Williamsburg Bridge'].replace(',','', regex=True))
+dataset_1['Total']                = pd.to_numeric(dataset_1['Total'].replace(',','', regex=True))
+
 # print(data.to_string())
 
-
-a = [0] * len(dataaa)
-count = 1
-for i in range(len(a)):
-    a[i] += count
-    count += 1
-
-dataaa = [int(i) for i in dataaa]
-# dataaa = dataaa.replace(',','', regex=True)
-print(dataaa)
 # R_square = r2_score(a, dataaa) 
 # print('Coefficient of Determination', R_square)
 
+#initiate linear regression model
+model = LinearRegression()
 
-# coeff_brook = np.polyfit(a, dataaa, 1, rcond=None, full=False, w=None, cov=False)
-# pred_brook = np.polyval(coeff_brook, a)
-# sse_brook = sum((dataaa - coeff_brook) ** 2)
-# sst_brook = sum((dataaa - m.mean(dataaa)) ** 2)
-# r_brook = 1 - (sse_brook / sst_brook)
-# print(r_brook)
+#define predictor and response variables
+X, y = [dataset_1['Brooklyn Bridge']], dataset_1.score
 
-# coeff_brook = np.polyfit(a, dataaa, 1)
-# print(coeff_brook)
+#fit regression model
+model.fit(X, y)
+
+#calculate R-squared of regression model
+r_squared = model.score(X, y)
+
+#view R-squared value
+print(r_squared)
