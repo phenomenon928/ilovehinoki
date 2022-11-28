@@ -176,14 +176,101 @@ def Select_best_bridges(test1, test2, bridge_name):
     
     
 # Second Problem
+def sort(list1, list2):
+    sorted_list1, sorted_list2 = (list(t) for t in zip(*sorted(zip(list1, list2))))
+    return sorted_list1, sorted_list2
 
 def temp(dataset_1):
-    avg_temp = [0]*len(dataset_1['High Temp'])
+
+    # finds the average temperature in each day
+    avg_temp = [0]*len(dataset_1)
 
     for i in range(len(avg_temp)):
         avg_temp[i] = (dataset_1['High Temp'][i] + dataset_1['Low Temp'][i]) / 2
 
-    print(avg_temp)
+
+    # gets new total list excluding Brooklyn bridge
+    new_total = [0]*len(dataset_1)
+
+    for i in range(len(dataset_1)):
+        new_total[i] = dataset_1['Total'][i] - dataset_1['Brooklyn Bridge'][i]
+    
+    # gets new list of indexes percipiation above 0 and at 0
+    x_p = []
+    x_np = []
+    y_precipitation = []
+    y_noprecipitation = []
+
+    for i in range(len(dataset_1)):
+        if dataset_1["Precipitation"][i] > 0:
+            y_precipitation.append(new_total[i])
+            x_p.append(avg_temp[i])
+        else:
+            y_noprecipitation.append(new_total[i])
+            x_np.append(avg_temp[i])
+    
+    #sorting data
+    x_p, y_precipitation = sort(x_p, y_precipitation)
+    x_np, y_noprecipitation = sort(x_np, y_noprecipitation)
+
+    # low_temp_total = new_total
+    # high_temp_total = new_total
+
+    low_temp_sorted, low_temp_total = sort(list(dataset_1['Low Temp']), new_total)
+    high_temp_sorted, high_temp_total = sort(list(dataset_1['High Temp']), new_total)
+    avg_temp_sorted, new_total_sorted = sort(avg_temp, new_total)
+
+    # print(avg_temp, new_total)
+    # print(avg_temp_sorted, new_total_sorted)
+    
+    # # trendlines
+    z_p = np.polyfit(x_p, y_precipitation,2)
+    p_p = np.poly1d(z_p)
+    z_np = np.polyfit(x_np, y_noprecipitation,2)
+    p_np = np.poly1d(z_np)
+
+    z_ltemp = np.polyfit(dataset_1['Low Temp'], new_total, 2)
+    p_ltemp = np.poly1d(z_ltemp)
+    z_htemp = np.polyfit(dataset_1['High Temp'], new_total, 2)
+    p_htemp = np.poly1d(z_htemp)
+
+    z_avg = np.polyfit(avg_temp, new_total, 2)
+    p_avg = np.poly1d(z_avg)
+
+    mp.figure()
+    mp.suptitle('Impact of Weather Condition on Bike Traffic', fontsize = 15)
+
+    fg1 = mp.subplot(2,2,1)
+    mp.plot(dataset_1['Low Temp'], p_ltemp(dataset_1['Low Temp']), 'r')
+    mp.scatter(dataset_1['Low Temp'], new_total, color = 'c')
+    fg1.set_ylabel('Total Traffic')
+    fg1.set_xlabel('Daily Low Temperature (°F)')
+
+
+    fg2 = mp.subplot(2,2,2)
+    mp.plot(dataset_1['High Temp'], p_htemp(dataset_1['High Temp']), 'r')
+    mp.scatter(dataset_1['High Temp'], new_total, color = 'c')
+    fg2.set_ylabel('Total Traffic')
+    fg2.set_xlabel('Daily High Temperature (°F)')
+
+    fg3 = mp.subplot(2,2,3)
+    mp.plot(avg_temp, p_avg(avg_temp), 'r')
+    mp.scatter(avg_temp, new_total, color = 'c')
+    fg3.set_ylabel('Total Traffic')
+    fg3.set_xlabel('Daily Average Temperature (°F)')
+
+    mp.subplot(2,2,4)
+    mp.plot(x_p, p_p(x_p), 'r')
+    mp.plot(x_np, p_np(x_np), 'b')
+    mp.xlabel('Daily Average Temperature (°F)')
+    mp.ylabel('Total Traffic')
+    mp.title('Impact of Daily Average Temperature and Percipitation on Total Traffic')
+    mp.scatter(x_p, y_precipitation, label='Precipitation')
+    mp.scatter(x_np, y_noprecipitation, label='No Precipitation')
+    mp.legend()
+
+    mp.subplots_adjust(left = 0.1, bottom = 0.1, right = 0.9, top = 0.9, wspace = 0.3, hspace = 0.3)
+    mp.show()
 
 # Third Problem
 
