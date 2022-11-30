@@ -1,12 +1,9 @@
-import pandas as pd
-import matplotlib.pyplot as mp
 import numpy as np
-from sklearn.linear_model import LinearRegression
-from sklearn.metrics import r2_score
+import pandas as pd
 import statistics as st
-
-# 2. The city administration is cracking down on helmet laws, and wants to deploy police officers on days with high traffic to hand out citations. Can they use the next day's weather forecast(low/high temperature and precipitation) to predict the total number of bicyclists that day? 
-# 3. Can you use this data to predict what *day* (Monday to Sunday) is today based on the number of bicyclists on the bridges?
+import matplotlib.pyplot as mp
+from sklearn.metrics import r2_score
+from sklearn.linear_model import LinearRegression
 
 def main():
     
@@ -21,7 +18,7 @@ def main():
     print("")
     print("Problem 1:")
     test1 = R_2_best_bridges(dataset_1)
-    test2 = Total_best_bridges(dataset_1)
+    test2 = Abs_Avg_Dev_best_bridges(dataset_1)
     print("Selected Bridges:", Select_best_bridges(test1, test2, bridge_name))
     
     print("")
@@ -38,6 +35,9 @@ def main():
     return 0
 
 # First Problem
+
+# 1. You want to install sensors on the bridges to estimate overall traffic across all the bridges. But you only have enough budget to install sensors on three of the four bridges. Which bridges should you install the sensors on to get the best prediction of overall traffic?
+
 def data_preprocessing(array):
     arr = np.array(array)
     q3, q1 = np.percentile(arr, (75, 25))
@@ -54,6 +54,14 @@ def R_2_best_bridges(dataset_1):
     # Calculating top three bridges using R-squared method after preprocessing the data using IQR
 
     new_arr1 = data_preprocessing(dataset_1['Brooklyn Bridge'])
+    new_arr2 = data_preprocessing(dataset_1['Manhattan Bridge'])
+    new_arr3 = data_preprocessing(dataset_1['Queensboro Bridge'])
+    new_arr4 = data_preprocessing(dataset_1['Williamsburg Bridge'])
+
+    # new_arr1 = dataset_1['Brooklyn Bridge']
+    # new_arr2 = dataset_1['Manhattan Bridge']
+    # new_arr3 = dataset_1['Queensboro Bridge']
+    # new_arr4 = dataset_1['Williamsburg Bridge']
     a1 = [0]*len(new_arr1)
     count = 1
     for i in range(len(a1)):
@@ -68,7 +76,7 @@ def R_2_best_bridges(dataset_1):
     p = np.poly1d(z)
 
     fg1 = mp.subplot(2, 2, 1)
-    mp.plot([x for x in range(len(new_arr1))], new_arr1 , color = 'c')
+    mp.scatter([x for x in range(len(new_arr1))], new_arr1 , color = 'c')
     mp.plot(x1, p(x1), 'r')
 
     for i in range(len(new_arr1)):
@@ -77,7 +85,7 @@ def R_2_best_bridges(dataset_1):
     fg1.text(0.17, 0.93, 'R-squared = %0.4f' % r2_list[0], horizontalalignment='center', verticalalignment='center', transform=fg1.transAxes, fontsize = 12, bbox=dict(facecolor='red', alpha=0.5))
 
 
-    new_arr2 = data_preprocessing(dataset_1['Manhattan Bridge'])
+    
     a2 = [0]*len(new_arr2)
     count = 1
     for i in range(len(a2)):
@@ -89,7 +97,7 @@ def R_2_best_bridges(dataset_1):
     z = np.polyfit([x for x in range(len(new_arr2))], new_arr2,1)
     p = np.poly1d(z)
     fg2 = mp.subplot(2, 2, 2)
-    mp.plot([x for x in range(len(new_arr2))], new_arr2, color = 'c')
+    mp.scatter([x for x in range(len(new_arr2))], new_arr2, color = 'c')
     mp.plot(x2, p(x2), 'r')
 
     for i in range(len(new_arr2)):
@@ -98,7 +106,7 @@ def R_2_best_bridges(dataset_1):
     fg2.text(0.17, 0.93, 'R-squared = %0.4f' % r2_list[1], horizontalalignment='center', verticalalignment='center', transform=fg2.transAxes, fontsize = 12, bbox=dict(facecolor='red', alpha=0.5))
 
 
-    new_arr3 = data_preprocessing(dataset_1['Queensboro Bridge'])
+    
     a3 = [0]*len(new_arr3)
     count = 1
     for i in range(len(a3)):
@@ -110,7 +118,7 @@ def R_2_best_bridges(dataset_1):
     z = np.polyfit([x for x in range(len(new_arr3))], new_arr3,1)
     p = np.poly1d(z)
     fg3 = mp.subplot(2, 2, 3)
-    mp.plot([x for x in range(len(new_arr3))], new_arr3, color = 'c')
+    mp.scatter([x for x in range(len(new_arr3))], new_arr3, color = 'c')
     mp.plot(x3, p(x3), 'r')
 
     for i in range(len(new_arr3)):
@@ -119,7 +127,7 @@ def R_2_best_bridges(dataset_1):
     fg3.text(0.17, 0.93, 'R-squared = %0.4f' % r2_list[2], horizontalalignment='center', verticalalignment='center', transform=fg3.transAxes, fontsize = 12, bbox=dict(facecolor='red', alpha=0.5))
 
 
-    new_arr4 = data_preprocessing(dataset_1['Williamsburg Bridge'])
+    
     a4 = [0]*len(new_arr4)
     count = 1
     for i in range(len(a4)):
@@ -132,7 +140,7 @@ def R_2_best_bridges(dataset_1):
     z = np.polyfit([x for x in range(len(new_arr4))], new_arr4,1)
     p = np.poly1d(z)
     fg4 = mp.subplot(2, 2, 4)
-    mp.plot([x for x in range(len(new_arr4))], new_arr4, color = 'c')
+    mp.scatter([x for x in range(len(new_arr4))], new_arr4, color = 'c')
     mp.plot(x4, p(x4), 'r')
 
     for i in range(len(new_arr4)):
@@ -159,28 +167,33 @@ def R_2_best_bridges(dataset_1):
     least_r2_index = r2_list.index(min(r2_list))
     return(least_r2_index)
 
-def Total_best_bridges(dataset_1):
+def Abs_Avg_Dev_best_bridges(dataset_1):
 
-    #Calculating top three bridges with the most total traffic
+    #Calculating top three bridges using absolute average deviation function
 
     Bridge_list = [0]*4
-    Bridge_list[0] = sum(dataset_1['Brooklyn Bridge'])
-    Bridge_list[1] = sum(dataset_1['Manhattan Bridge'])
-    Bridge_list[2] = sum(dataset_1['Williamsburg Bridge'])
-    Bridge_list[3] = sum(dataset_1['Queensboro Bridge'])
-    
+    Bridge_list[0] = sum(data_preprocessing((dataset_1['Brooklyn Bridge'])))
+    Bridge_list[1] = sum(data_preprocessing(dataset_1['Manhattan Bridge']))
+    Bridge_list[2] = sum(data_preprocessing(dataset_1['Williamsburg Bridge']))
+    Bridge_list[3] = sum(data_preprocessing(dataset_1['Queensboro Bridge']))
+    # Bridge_list = np.array[Bridge_list]
     x_axis = ['Brooklyn', 'Manhattan', 'Williamsburg', 'Queensboro']
-
+    y_mean = [np.mean(Bridge_list)]*len(Bridge_list)
+    abs_avg_dev = [0]*4
+    for i in range(len(y_mean)):
+        abs_avg_dev[i] = abs(Bridge_list[i] - y_mean[i])
     mp.figure(2)
     mp.bar(x_axis, Bridge_list, color = 'c')
+    mp.plot(x_axis,y_mean, label='Mean', linestyle='--', color = 'red')
     mp.xlabel('Name of Bridges')
     mp.ylabel('Total Number of Bicyclists (million)')
     mp.title('Total Number of Bicyclists for each Bridge', fontsize = 15)
+    mp.legend()
     mp.show()
 
-    least_total_index = Bridge_list.index(min(Bridge_list))
+    largest_deviation = abs_avg_dev.index(max(abs_avg_dev))
 
-    return(least_total_index)
+    return(largest_deviation)
 
 def Select_best_bridges(test1, test2, bridge_name):
     # finds and removes the least favorable bridges from the bridge_name
@@ -195,6 +208,9 @@ def Select_best_bridges(test1, test2, bridge_name):
     
     
 # Second Problem
+
+# 2. The city administration is cracking down on helmet laws, and wants to deploy police officers on days with high traffic to hand out citations. Can they use the next day's weather forecast(low/high temperature and precipitation) to predict the total number of bicyclists that day? 
+
 def sort(list1, list2):
     sorted_list1, sorted_list2 = (list(t) for t in zip(*sorted(zip(list1, list2))))
     return sorted_list1, sorted_list2
@@ -249,15 +265,15 @@ def temp(dataset_1):
     mp.subplot(3,1,1)
     x_1 = np.array(x_p).reshape((-1,1))
     y_1 = np.array(y_precipitation)
-    model = LinearRegression()
-    model.fit(x_1, y_1)
+    model1 = LinearRegression()
+    model1.fit(x_1, y_1)
     # r_sq = model.score(x_1, y_1)
     # print(r_sq)
     # print("coefficient:", model.coef_)
     # print("y-intercent:", model.intercept_)
-    mp.scatter(x_p, y_precipitation, label='Precipitation')
-    mp.plot(x_1, model.predict(x_1), label = 'Linear Regression', color = 'green')
-    mp.plot(x_p, p_p(x_p),label = 'Trendline', color = 'r')
+    mp.scatter(x_p, y_precipitation, label='Precipitation', color = 'c')
+    mp.plot(x_1, model1.predict(x_1), label = 'Linear Regression', color = 'dodgerblue')
+    mp.plot(x_p, p_p(x_p),label = 'Trendline', color = 'purple')
     mp.xlabel('Daily Average Temperature (°F)')
     mp.ylabel('Total Bike Traffic (24 hr period)')
     mp.legend()
@@ -265,25 +281,27 @@ def temp(dataset_1):
     mp.subplot(3,1,2)
     x_2 = np.array(x_np).reshape((-1,1))
     y_2 = np.array(y_noprecipitation)
-    model = LinearRegression()
-    model.fit(x_2, y_2)
+    model2 = LinearRegression()
+    model2.fit(x_2, y_2)
     # print("coefficient:", model.coef_)
     # print("y-intercent:", model.intercept_)
-    mp.scatter(x_np, y_noprecipitation, label='No Precipitation', color = 'darkorange')
-    mp.plot(x_2, model.predict(x_2), label = 'Linear Regression', color = 'green')
-    mp.plot(x_np, p_np(x_np),label = 'Trendline', color = 'r')
+    mp.scatter(x_np, y_noprecipitation, label='No Precipitation', color = 'coral')
+    mp.plot(x_2, model2.predict(x_2), label = 'Linear Regression', color = 'red')
+    mp.plot(x_np, p_np(x_np),label = 'Trendline', color = 'purple')
     mp.xlabel('Daily Average Temperature (°F)')
     mp.ylabel('Total Bike Traffic (24 hr period)')
     mp.legend()
 
     mp.subplot(3,1,3)
-    mp.scatter(x_p, y_precipitation, label='Precipitation')
-    mp.scatter(x_np, y_noprecipitation, label='No Precipitation', color = 'darkorange')
+    mp.scatter(x_p, y_precipitation, label='Precipitation', color = 'c')
+    mp.scatter(x_np, y_noprecipitation, label='No Precipitation', color = 'coral')
+    mp.plot(x_1, model1.predict(x_1), label = 'Linear Regression (Precipitation)', color = 'dodgerblue')
+    mp.plot(x_2, model2.predict(x_2), label = 'Linear Regression (No Precipitation)', color = 'red')
     mp.xlabel('Daily Average Temperature (°F)')
     mp.ylabel('Total Bike Traffic (24 hr period)')
     mp.legend()
     mp.show()
-    
+
     return 0
 
 def user_input():
@@ -301,6 +319,9 @@ def user_input():
     return total
 
 # Third Problem
+
+# 3. Can you use this data to predict what *day* (Monday to Sunday) is today based on the number of bicyclists on the bridges?
+
 
 if __name__ == '__main__':
     main()
