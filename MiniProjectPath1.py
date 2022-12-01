@@ -23,20 +23,16 @@ def main():
     
     print("")
     print("Problem 2:")
-    # print(user_input())
-    temp(dataset_1)
+    user_input_1()
+    n_total = temp(dataset_1)
 
     print("")
     print("Problem 3:")
-
+    third_problem(n_total, dataset_1)
 
     print("")
 
     return 0
-
-# First Problem
-
-# 1. You want to install sensors on the bridges to estimate overall traffic across all the bridges. But you only have enough budget to install sensors on three of the four bridges. Which bridges should you install the sensors on to get the best prediction of overall traffic?
 
 def data_preprocessing(array):
     arr = np.array(array)
@@ -49,19 +45,29 @@ def data_preprocessing(array):
 
     return new_arr
 
+def sort(list1, list2):
+    sorted_list1, sorted_list2 = (list(t) for t in zip(*sorted(zip(list1, list2))))
+    return sorted_list1, sorted_list2
+
+# First Problem
+
 def R_2_best_bridges(dataset_1):
 
     # Calculating top three bridges using R-squared method after preprocessing the data using IQR
 
+    # before data prepreocessing
+    # new_arr1 = dataset_1['Brooklyn Bridge']
+    # new_arr2 = dataset_1['Manhattan Bridge']
+    # new_arr3 = dataset_1['Queensboro Bridge']
+    # new_arr4 = dataset_1['Williamsburg Bridge']
+
+    # after data prepreocessing
     new_arr1 = data_preprocessing(dataset_1['Brooklyn Bridge'])
     new_arr2 = data_preprocessing(dataset_1['Manhattan Bridge'])
     new_arr3 = data_preprocessing(dataset_1['Queensboro Bridge'])
     new_arr4 = data_preprocessing(dataset_1['Williamsburg Bridge'])
 
-    # new_arr1 = dataset_1['Brooklyn Bridge']
-    # new_arr2 = dataset_1['Manhattan Bridge']
-    # new_arr3 = dataset_1['Queensboro Bridge']
-    # new_arr4 = dataset_1['Williamsburg Bridge']
+
     a1 = [0]*len(new_arr1)
     count = 1
     for i in range(len(a1)):
@@ -176,12 +182,13 @@ def Abs_Avg_Dev_best_bridges(dataset_1):
     Bridge_list[1] = sum(data_preprocessing(dataset_1['Manhattan Bridge']))
     Bridge_list[2] = sum(data_preprocessing(dataset_1['Williamsburg Bridge']))
     Bridge_list[3] = sum(data_preprocessing(dataset_1['Queensboro Bridge']))
-    # Bridge_list = np.array[Bridge_list]
     x_axis = ['Brooklyn', 'Manhattan', 'Williamsburg', 'Queensboro']
+
     y_mean = [np.mean(Bridge_list)]*len(Bridge_list)
     abs_avg_dev = [0]*4
     for i in range(len(y_mean)):
         abs_avg_dev[i] = abs(Bridge_list[i] - y_mean[i])
+
     mp.figure(2)
     mp.bar(x_axis, Bridge_list, color = 'c')
     mp.plot(x_axis,y_mean, label='Mean', linestyle='--', color = 'red')
@@ -206,27 +213,15 @@ def Select_best_bridges(test1, test2, bridge_name):
 
     return(bridge_name)
     
-    
 # Second Problem
 
-# 2. The city administration is cracking down on helmet laws, and wants to deploy police officers on days with high traffic to hand out citations. Can they use the next day's weather forecast(low/high temperature and precipitation) to predict the total number of bicyclists that day? 
-
-def sort(list1, list2):
-    sorted_list1, sorted_list2 = (list(t) for t in zip(*sorted(zip(list1, list2))))
-    return sorted_list1, sorted_list2
-
 def temp(dataset_1):
-
-    # # high temperature IQR
-
-    # # low temperature IQR
 
     # finds the average temperature in each day
     avg_temp = [0]*len(dataset_1)
 
     for i in range(len(avg_temp)):
-        avg_temp[i] = (dataset_1['High Temp'][i] + dataset_1['Low Temp'][i]) / 2 #여기 고쳐아함!!!!!
-
+        avg_temp[i] = (dataset_1['High Temp'][i] + dataset_1['Low Temp'][i]) / 2
 
     # gets new total list excluding Brooklyn bridge
     new_total = [0]*len(dataset_1)
@@ -302,12 +297,12 @@ def temp(dataset_1):
     mp.legend()
     mp.show()
 
-    return 0
+    return new_total
 
-def user_input():
+def user_input_1():
     pre = float(input("Enter Precipitation: "))
-    high_temp = float(input('Enter Highest Temperature: '))
-    low_temp = float(input('Enter Lowest Temperature: '))
+    high_temp = float(input('Enter Highest Temperature (°F): '))
+    low_temp = float(input('Enter Lowest Temperature (°F): '))
 
     avg_temp = (high_temp + low_temp) / 2
 
@@ -316,11 +311,64 @@ def user_input():
     else:
         total = (136.48628816 * avg_temp + 7713.267222284023)
 
-    return total
+    print("Predicted Traffic:", int(total))
+
+    return 0
 
 # Third Problem
 
-# 3. Can you use this data to predict what *day* (Monday to Sunday) is today based on the number of bicyclists on the bridges?
+def third_problem(n_total, dataset_1):
+   
+    day_dict = {'Monday': 0, 'Tuesday': 0, 'Wednesday': 0, 'Thursday': 0, 'Friday': 0, 'Saturday': 0, 'Sunday': 0}
+    mon = 0
+    tue = 0
+    wed = 0
+    thu = 0
+    fri = 0
+    sat = 0
+    sun = 0
+    
+    for i in range(len(n_total)):
+        day_dict[dataset_1['Day'][i]] += n_total[i]
+        if dataset_1['Day'][i] == 'Monday':
+            mon += 1
+        if dataset_1['Day'][i] == 'Tuesday':
+            tue += 1
+        if dataset_1['Day'][i] == 'Wednesday':
+            wed += 1
+        if dataset_1['Day'][i] == 'Thursday':
+            thu += 1
+        if dataset_1['Day'][i] == 'Friday':
+            fri += 1
+        if dataset_1['Day'][i] == 'Saturday':
+            sat += 1
+        if dataset_1['Day'][i] == 'Sunday':
+            sun += 1
+
+    day_li = [mon, tue, wed, thu, fri, sat, sun]
+    for i in range(7):
+        day_dict[list(day_dict.keys())[i]] = day_dict[list(day_dict.keys())[i]] / day_li[i]
+    
+    mp.figure()
+    myList = day_dict.items() 
+    x, y = zip(*myList) 
+
+    mp.plot(x, y)
+    mp.title('Average Bicyclist for each Day')
+    mp.xlabel('Day')
+    mp.ylabel('Average Number of Bicyclist')
+    mp.show()
+    
+    # user input for prediction
+    pred_day = float(input("Enter the total number: "))
+    pred_diff=[0]*7
+
+    for i in range(len(pred_diff)):
+        pred_diff[i] = abs(list(day_dict.values())[i] - pred_day)
+    ind = pred_diff.index(min(pred_diff))
+    print("Predicted Day:", list(day_dict.keys())[ind])
+
+    return 0
 
 
 if __name__ == '__main__':
