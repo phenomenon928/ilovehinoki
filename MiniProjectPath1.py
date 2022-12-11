@@ -188,7 +188,7 @@ def Abs_Avg_Dev_best_bridges(dataset_1):
     abs_avg_dev = [0]*4
     for i in range(len(y_mean)):
         abs_avg_dev[i] = abs(Bridge_list[i] - y_mean[i])
-
+    print(abs_avg_dev)
     mp.figure(2)
     mp.bar(x_axis, Bridge_list, color = 'c')
     mp.plot(x_axis,y_mean, label='Mean', linestyle='--', color = 'red')
